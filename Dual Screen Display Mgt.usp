@@ -1,0 +1,138 @@
+/*
+Programmer: ClearAlan
+Comments: (c) 2013 ClearAlanDesign All Rights Reserved
+*/
+
+/*******************************************************************************************
+  Compiler Directives
+  (Uncomment and declare compiler directives as needed)
+*******************************************************************************************/
+// #ENABLE_DYNAMIC
+// #SYMBOL_NAME ""
+// #HINT ""
+#DEFINE_CONSTANT MAXINPUTS 4
+// #CATEGORY "" 
+// #PRINT_TO_TRACE
+// #DIGITAL_EXPAND 
+// #ANALOG_SERIAL_EXPAND 
+// #OUTPUT_SHIFT 
+// #HELP_PDF_FILE ""
+#DEFAULT_VOLATILE
+#ENABLE_STACK_CHECKING
+#ENABLE_TRACE
+// #ENCODING_ASCII
+// #ENCODING_UTF16
+// #ENCODING_INHERIT_FROM_PARENT
+// #ENCODING_INHERIT_FROM_PROGRAM
+
+#HELP_BEGIN
+   (c) 2013 ClearAlan
+   			All Rights Reseved
+   			
+   		for assistance with this module please contact ClearAlan at 1-647-478-5451
+#HELP_END
+
+
+/*******************************************************************************************
+  Include Libraries
+  (Uncomment and include additional libraries as needed)
+*******************************************************************************************/
+// #CRESTRON_LIBRARY ""
+// #USER_LIBRARY ""
+
+/*******************************************************************************************
+  DIGITAL, ANALOG and SERIAL INPUTS and OUTPUTS
+  (Uncomment and declare inputs and outputs as needed)
+*******************************************************************************************/
+DIGITAL_INPUT ENABLE;
+DIGITAL_INPUT reset;
+DIGITAL_INPUT _SKIP_;
+DIGITAL_INPUT INPUT[MAXINPUTS];
+
+// STRING_INPUT 
+// BUFFER_INPUT 
+
+DIGITAL_OUTPUT OUTPUT_A[MAXINPUTS],OUTPUT_B[MAXINPUTS];
+// ANALOG_OUTPUT
+// STRING_OUTPUT 
+
+INTEGER lastscreen ;
+
+FUNCTION fnCLEARA()
+{
+INTEGER X;
+	FOR(X = 1 TO MAXINPUTS)
+	{
+	 	OUTPUT_A[X] = 0;
+	}
+}
+FUNCTION fnCLEARB()
+{
+INTEGER X;
+	FOR(X = 1 TO MAXINPUTS)
+	{
+	 	OUTPUT_B[X] = 0;
+	}
+	
+}
+
+
+
+PUSH ENABLE
+{   
+	GENERATEUSERNOTICE("Dual Screen Display Mgt :: (C) 2013 ClearAlan :: Driver Enabled");  
+	lastscreen = 0;
+} 
+push reset
+{
+ 	lastscreen = 0;
+ 	fnClearA();
+ 	fnClearB();
+}
+
+PUSH INPUT
+{
+INTEGER LAST;
+        
+  if(enable)
+ 	{    
+	  	last = getlastmodifiedarrayindex();  
+		  switch(lastscreen)
+		  {
+		   	case(0):
+		   	{
+		   		lastscreen = 1;
+		   		fnClearA();
+		   		fnClearB();
+		   		output_a[last] = on;
+		   		output_b[last] = on;		   	
+		   	}
+		   	case(1):
+		   	{   
+		   		fnClearB();
+		   		lastscreen = 2;
+		   		output_B[last] = on;
+		   	}
+		   	case(2):
+		   	{
+		   	    lastscreen = 1;
+		   		fnClearA();
+		   		output_a[last] = on;
+		   	}
+		   	
+		  }
+	}	  
+}
+/*******************************************************************************************
+  Main()
+  Uncomment and place one-time startup code here
+  (This code will get called when the system starts up)
+*******************************************************************************************/
+
+Function Main()
+{
+    waitforinitializationcomplete();
+    lastscreen = 0;
+}
+
+
